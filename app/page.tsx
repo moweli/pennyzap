@@ -71,23 +71,24 @@ export default function Home() {
                 </div>
                 {/* Social Proof */}
                 <div className="flex flex-col items-center lg:items-start space-y-2 pt-4">
-                  <div className="flex -space-x-2">
+                  <div className="flex -space-x-5">
                     {[
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-                      "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop&crop=face",
-                      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face",
-                      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
-                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
+                      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face", // Blonde woman smiling
+                      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face", // Young man in blue
+                      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100&h=100&fit=crop&crop=face", // Woman with curly hair
+                      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=face", // Asian woman smiling
+                      "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?w=100&h=100&fit=crop&crop=face", // Man with glasses
+                      "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=100&h=100&fit=crop&crop=face", // Woman with headscarf
                     ].map((avatar, i) => (
                       <div
                         key={i}
-                        className="w-8 h-8 rounded-full border-2 border-white overflow-hidden"
+                        className="w-14 h-14 rounded-full border-2 border-white overflow-hidden"
                       >
                         <Image
                           src={avatar}
                           alt={`User ${i + 1} avatar`}
-                          width={32}
-                          height={32}
+                          width={62}
+                          height={62}
                           className="object-cover"
                         />
                       </div>
