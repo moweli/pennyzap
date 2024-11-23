@@ -139,7 +139,7 @@ export default function Home() {
                     Calculate your path to financial independence with our advanced FIRE calculator.
                   </p>
                   <Link
-                    className="inline-flex items-center text-primary hover:text-primary-hover transition-colors"
+                    className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
                     href="/fire-calculator"
                   >
                     Learn More <ArrowRight className="ml-1 h-4 w-4" />
@@ -154,7 +154,7 @@ export default function Home() {
                     Track your investments and monitor your progress towards financial independence.
                   </p>
                   <Link
-                    className="inline-flex items-center text-secondary hover:text-secondary-hover transition-colors"
+                    className="inline-flex items-center text-secondary hover:text-secondary/80 transition-colors"
                     href="/investment-tracker"
                   >
                     Learn More <ArrowRight className="ml-1 h-4 w-4" />
@@ -169,7 +169,7 @@ export default function Home() {
                     Plan your withdrawal strategy for a sustainable retirement with our advanced calculators.
                   </p>
                   <Link
-                    className="inline-flex items-center text-accent hover:text-accent-hover transition-colors"
+                    className="inline-flex items-center text-accent hover:text-accent/80 transition-colors"
                     href="/withdrawal-strategy"
                   >
                     Learn More <ArrowRight className="ml-1 h-4 w-4" />
@@ -295,12 +295,14 @@ export default function Home() {
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="flex-1 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 focus:border-white/30 transition-all duration-200 px-3 py-2 outline-none"
+                    value={email}
+                    onChange={handleChange}
+                    className="flex-1 rounded-md bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 focus:border-white/30 transition-all duration-200 px-3 py-2 outline-none backdrop-blur-sm"
                     required
                   />
                   <button
                     type="submit"
-                    className="bg-accent hover:bg-accent-hover text-white shadow-lg hover:shadow-accent/20 px-4 py-2 rounded-md transition-all duration-200 font-medium whitespace-nowrap"
+                    className="bg-white text-secondary hover:bg-white/90 shadow-lg hover:shadow-white/20 px-4 py-2 rounded-md transition-all duration-200 font-medium whitespace-nowrap"
                   >
                     Subscribe Now
                   </button>
