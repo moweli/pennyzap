@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Navigation } from "@/components/Navigation";
 import {
   Select,
   SelectContent,
@@ -25,9 +27,9 @@ import {
   YAxis,
   CartesianGrid,
   Legend,
-  ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { Calculator, TrendingDown, DollarSign } from "lucide-react";
 
 const WITHDRAWAL_STRATEGIES = [
   { value: "4percent", label: "4% Rule" },
@@ -47,8 +49,8 @@ export default function WithdrawalStrategyPlanner() {
   const [retirementYears, setRetirementYears] = useState(30);
   const [annualExpenses, setAnnualExpenses] = useState(40000);
   const [withdrawalStrategy, setWithdrawalStrategy] = useState("4percent");
-  const [expectedReturn, setExpectedReturn] = useState(6.0); // as percentage
-  const [inflationRate, setInflationRate] = useState(2.0); // as percentage
+  const [expectedReturn, setExpectedReturn] = useState(6.0);
+  const [inflationRate, setInflationRate] = useState(2.0);
   const [results, setResults] = useState<WithdrawalResult[] | null>(null);
 
   const calculateWithdrawal = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -163,173 +165,191 @@ export default function WithdrawalStrategyPlanner() {
   const memoizedChart = useMemo(
     () => (
       <ChartContainer config={chartConfig} className="h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={
-              results && results.length > 0
-                ? results
-                : [
-                    {
-                      year: 1,
-                      withdrawal: 0,
-                      portfolioValue: 0,
-                      inflationAdjustedExpenses: 0,
-                    },
-                  ]
+        <AreaChart
+          width={711}
+          height={400}
+          data={
+            results && results.length > 0
+              ? results
+              : [
+                  {
+                    year: 1,
+                    withdrawal: 0,
+                    portfolioValue: 0,
+                    inflationAdjustedExpenses: 0,
+                  },
+                ]
+          }
+          margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+          <defs>
+            <linearGradient id="colorPortfolioValue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.2}/>
+            </linearGradient>
+            <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.2}/>
+            </linearGradient>
+            <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0.2}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="year"
+            tickFormatter={(value) => `Year ${value}`}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis
+            tickFormatter={(value) =>
+              `$${(value / 1000).toFixed(0)}k`
             }
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-            <defs>
-              <linearGradient id="colorPortfolioValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.2}/>
-              </linearGradient>
-              <linearGradient id="colorWithdrawal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.2}/>
-              </linearGradient>
-              <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0.2}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="year"
-              tickFormatter={(value) => `Year ${value}`}
-              tick={{ fontSize: 12 }}
-            />
-            <YAxis
-              tickFormatter={(value) =>
-                `$${(value / 1000).toFixed(0)}k`
+            tick={{ fontSize: 12 }}
+            width={60}
+          />
+          <Tooltip
+            content={({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                return (
+                  <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg text-sm">
+                    <p className="font-bold mb-2">Year {label}</p>
+                    {payload.map((entry, index) => (
+                      <p key={index} className={`flex justify-between items-center gap-4 ${index < payload.length - 1 ? 'mb-1' : ''}`}>
+                        <span style={{ color: entry.color }}>{entry.name}:</span>
+                        <span className="font-semibold">{formatMoney(Number(entry.value))}</span>
+                      </p>
+                    ))}
+                  </div>
+                );
               }
-              tick={{ fontSize: 12 }}
-              width={60}
-            />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg text-sm">
-                      <p className="font-bold mb-2">Year {label}</p>
-                      {payload.map((entry, index) => (
-                        <p key={index} className={`flex justify-between items-center gap-4 ${index < payload.length - 1 ? 'mb-1' : ''}`}>
-                          <span style={{ color: entry.color }}>{entry.name}:</span>
-                          <span className="font-semibold">{formatMoney(Number(entry.value))}</span>
-                        </p>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend />
-            <Area
-              type="monotone"
-              dataKey="portfolioValue"
-              name="Portfolio Value"
-              stroke="var(--color-portfolioValue)"
-              fill="url(#colorPortfolioValue)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="withdrawal"
-              name="Annual Withdrawal"
-              stroke="var(--color-withdrawal)"
-              fill="url(#colorWithdrawal)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="inflationAdjustedExpenses"
-              name="Inflation-Adjusted Expenses"
-              stroke="var(--color-inflationAdjustedExpenses)"
-              fill="url(#colorExpenses)"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+              return null;
+            }}
+          />
+          <Legend />
+          <Area
+            type="monotone"
+            dataKey="portfolioValue"
+            name="Portfolio Value"
+            stroke="var(--color-portfolioValue)"
+            fill="url(#colorPortfolioValue)"
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="withdrawal"
+            name="Annual Withdrawal"
+            stroke="var(--color-withdrawal)"
+            fill="url(#colorWithdrawal)"
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="inflationAdjustedExpenses"
+            name="Inflation-Adjusted Expenses"
+            stroke="var(--color-inflationAdjustedExpenses)"
+            fill="url(#colorExpenses)"
+            strokeWidth={2}
+          />
+        </AreaChart>
       </ChartContainer>
     ),
     [results]
   );
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-4">Withdrawal Strategy Planner</h1>
-      <p className="text-gray-600 mb-8">
-        Plan your retirement withdrawals and visualize portfolio sustainability over time.
-      </p>
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Plan Your Withdrawal Strategy</CardTitle>
-              <CardDescription>Enter your retirement portfolio details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form className="space-y-4">
-                <div>
-                  <Label htmlFor="portfolioValue">Initial Portfolio Value ($)</Label>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+      <Navigation />
+
+      {/* Hero Section */}
+      <section className="relative py-12 lg:py-20 overflow-hidden bg-gradient-to-br from-rose-900 via-red-800 to-orange-700 w-full">
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-grid-16" />
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="text-center">
+            <Badge variant="outline" className="border-orange-200/10 text-orange-200 mb-4">
+              Retirement Withdrawal Planner
+            </Badge>
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl xl:text-6xl/none mb-4">
+              Plan Your Retirement Income
+            </h1>
+            <p className="max-w-2xl mx-auto text-lg text-orange-100">
+              Optimize your retirement withdrawals to ensure your savings last through your golden years.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Header Section */}
+          <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingDown className="h-5 w-5 text-primary" />
+                <Badge variant="secondary">Withdrawal Strategy</Badge>
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight">Smart Withdrawal Planning</h2>
+              <p className="text-muted-foreground">
+                Compare different withdrawal strategies to find the best fit for your retirement
+              </p>
+            </div>
+          </div>
+
+          {/* Input Section */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                  <CardTitle>Portfolio Details</CardTitle>
+                </div>
+                <CardDescription>Enter your portfolio and retirement details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Initial Portfolio Value</Label>
                   <Input
-                    id="portfolioValue"
                     type="number"
                     value={portfolioValue}
                     onChange={(e) => setPortfolioValue(Number(e.target.value))}
+                    className="[&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="retirementYears">Retirement Duration (years)</Label>
+                <div className="space-y-2">
+                  <Label>Annual Expenses</Label>
                   <Input
-                    id="retirementYears"
-                    type="number"
-                    value={retirementYears}
-                    onChange={(e) => setRetirementYears(Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="annualExpenses">Annual Expenses ($)</Label>
-                  <Input
-                    id="annualExpenses"
                     type="number"
                     value={annualExpenses}
                     onChange={(e) => setAnnualExpenses(Number(e.target.value))}
+                    className="[&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="expectedReturn">Expected Annual Return (%)</Label>
+                <div className="space-y-2">
+                  <Label>Retirement Duration (Years)</Label>
                   <Input
-                    id="expectedReturn"
                     type="number"
-                    step="0.1"
-                    value={expectedReturn}
-                    onChange={(e) => setExpectedReturn(Number(e.target.value))}
+                    value={retirementYears}
+                    onChange={(e) => setRetirementYears(Number(e.target.value))}
+                    className="[&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Historical S&P 500 average return is around 10% (7% after inflation)
-                  </p>
                 </div>
-                <div>
-                  <Label htmlFor="inflationRate">Expected Inflation Rate (%)</Label>
-                  <Input
-                    id="inflationRate"
-                    type="number"
-                    step="0.1"
-                    value={inflationRate}
-                    onChange={(e) => setInflationRate(Number(e.target.value))}
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Historical average is around 2-3% in developed economies
-                  </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5 text-primary" />
+                  <CardTitle>Strategy Settings</CardTitle>
                 </div>
-                <div>
-                  <Label htmlFor="withdrawalStrategy">Withdrawal Strategy</Label>
-                  <Select
-                    value={withdrawalStrategy}
-                    onValueChange={setWithdrawalStrategy}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a strategy" />
+                <CardDescription>Configure your withdrawal strategy</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Withdrawal Strategy</Label>
+                  <Select value={withdrawalStrategy} onValueChange={setWithdrawalStrategy}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {WITHDRAWAL_STRATEGIES.map((strategy) => (
@@ -339,90 +359,84 @@ export default function WithdrawalStrategyPlanner() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="mt-2 text-sm text-gray-500">{getStrategyDescription()}</p>
                 </div>
-                <Button onClick={calculateWithdrawal} className="w-full">
-                  Calculate Strategy
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                <div className="space-y-2">
+                  <Label>Expected Return (%)</Label>
+                  <Input
+                    type="number"
+                    value={expectedReturn}
+                    onChange={(e) => setExpectedReturn(Number(e.target.value))}
+                    className="[&::-webkit-inner-spin-button]:appearance-none"
+                    step="0.1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Inflation Rate (%)</Label>
+                  <Input
+                    type="number"
+                    value={inflationRate}
+                    onChange={(e) => setInflationRate(Number(e.target.value))}
+                    className="[&::-webkit-inner-spin-button]:appearance-none"
+                    step="0.1"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
+          {/* Results Section */}
           {results && (
             <Card>
               <CardHeader>
-                <CardTitle>Key Metrics</CardTitle>
-                <CardDescription>Summary of your withdrawal strategy</CardDescription>
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="h-5 w-5 text-primary" />
+                  <CardTitle>Withdrawal Projection</CardTitle>
+                </div>
+                <CardDescription>Your projected portfolio value and withdrawals over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-sm text-gray-500">Initial Annual Withdrawal</h3>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatMoney(results[0].withdrawal)}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-sm text-gray-500">Final Portfolio Value</h3>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatMoney(results[results.length - 1].portfolioValue)}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-sm text-gray-500">Portfolio Sustainability</h3>
-                    <p className={`text-lg ${getPortfolioHealth()?.color}`}>
-                      {getPortfolioHealth()?.message}
-                    </p>
-                  </div>
+                <div className="h-[400px] w-full">
+                  <ChartContainer config={{}}>
+                    <AreaChart
+                      data={results}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="year" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="portfolioValue"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary)/.2)"
+                        name="Portfolio Value"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="withdrawal"
+                        stroke="hsl(var(--destructive))"
+                        fill="hsl(var(--destructive)/.2)"
+                        name="Withdrawal Amount"
+                      />
+                    </AreaChart>
+                  </ChartContainer>
                 </div>
               </CardContent>
             </Card>
           )}
-        </div>
 
-        <div className="space-y-6">
-          {results && (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Portfolio Projection</CardTitle>
-                  <CardDescription>{retirementYears}-year withdrawal strategy simulation</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  {memoizedChart}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Assumptions</CardTitle>
-                  <CardDescription>Key assumptions used in calculations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Expected Return:</span>
-                      <span className="font-semibold">{expectedReturn.toFixed(1)}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Inflation Rate:</span>
-                      <span className="font-semibold">{inflationRate.toFixed(1)}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Real Return:</span>
-                      <span className="font-semibold">{(expectedReturn - inflationRate).toFixed(1)}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Time Horizon:</span>
-                      <span className="font-semibold">{retirementYears} years</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
+          <div className="flex justify-end">
+            <Button
+              size="lg"
+              onClick={calculateWithdrawal}
+            >
+              Calculate Withdrawal Strategy
+            </Button>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

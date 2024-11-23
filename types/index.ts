@@ -1,5 +1,37 @@
 import { z } from "zod";
 
+export const RISK_LEVELS = ["Conservative", "Moderate", "Aggressive"] as const;
+export const ASSET_CLASSES = ["Stocks", "Bonds", "Cash", "Real Estate"] as const;
+export const INVESTMENT_GOALS = ["Retirement", "Wealth Building", "Income Generation", "Capital Preservation"] as const;
+export const INVESTMENT_EXPERIENCE = ["Beginner", "Intermediate", "Advanced"] as const;
+
+export type AssetClass = typeof ASSET_CLASSES[number];
+export type InvestmentGoal = typeof INVESTMENT_GOALS[number];
+export type ExperienceLevel = typeof INVESTMENT_EXPERIENCE[number];
+
+export interface Portfolio {
+  name: AssetClass;
+  value: number;
+  amount: string;
+  historicalReturn?: number;
+  risk?: number;
+  sharpeRatio?: number;
+}
+
+export interface OptimizationResult {
+  currentPortfolio: Portfolio[];
+  optimizedPortfolio: Portfolio[];
+  expectedReturn: number;
+  riskLevel: number;
+  timelineImpact: number;
+  recommendations: string[];
+  rebalanceFrequency: string;
+  riskScore: number;
+  diversificationScore: number;
+  sharpeRatio: number;
+  drawdownRisk: number;
+}
+
 // Validation schemas
 export const formDataSchema = z.object({
   currentAge: z.number().min(18).max(100),
